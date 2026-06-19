@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+    id 'net.neoforged.moddev' version '2.0.+'
+}
+
+version = '1.0.0'
+group = 'com.retro.endseal'
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+repositories {
+    mavenCentral()
+}
+
+neoForge {
+    // Match this to the NeoForge version your modpack ships (1.21.1 line).
+    version = "21.1.172"
+
+    runs {
+        client { client() }
+        server { server() }
+    }
+
+    mods {
+        endseal {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+tasks.named('processResources', ProcessResources).configure {
+    var replaceProperties = [ version: project.version ]
+    inputs.properties replaceProperties
+    filesMatching(['META-INF/neoforge.mods.toml']) {
+        expand replaceProperties
+    }
+}

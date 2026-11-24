@@ -1,28 +1,38 @@
 package com.retro.endseal;
 
+import com.retro.endseal.config.EndSealConfig;
+import com.retro.endseal.config.ISealSettings;
+import com.retro.endseal.config.SealSettingsFactory;
+import com.retro.endseal.portal.IPortalRingChecker;
+import com.retro.endseal.portal.rules.EyeInsertionPolicy;
+import com.retro.endseal.portal.rules.PortalRingFactory;
+import com.retro.endseal.portal.rules.RefusalMessagePicker;
+import com.retro.endseal.server.EndSealCommand;
+import com.retro.endseal.server.EndSealEvents;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.common.NeoForge;
 
-/**
- * EndSeal — silently refuses End portal activation until configured otherwise.
- *
- * The End Stronghold and its portal frame still generate normally; players can
- * find it, build around it, and (optionally) place all but the final eye. What
- * they cannot do is complete/ignite the portal. When a player tries, they get a
- * configurable action-bar message so it reads as intentional design, not a bug.
- *
- * Flip {@code sealed} to false in the config (or the gameplay command) to "open"
- * the End as a server event later.
- */
-@Mod(EndSeal.MODID)
-public class EndSeal {
-    public static final String MODID = "endseal";
+@Mod(EndSeal.ModId)
+public final class EndSeal
+{
+    public static final String ModId = "endseal";
 
-    public EndSeal(IEventBus modEventBus, ModContainer modContainer) {
-        // Register the config. The event handler registers itself to the game bus
-        // via @EventBusSubscriber (see EndSealEvents).
-        modContainer.registerConfig(ModConfig.Type.COMMON, EndSealConfig.SPEC);
+    public EndSeal(IEventBus modEventBus, ModContainer modContainer)
+    {
+        modContainer.registerConfig(ModConfig.Type.COMMON, EndSealConfig.ConfigDefinition);
+
+        ISealSettings settings = SealSettingsFactory.createNeoForgeSettings();
+        IPortalRingChecker ringChecker = PortalRingFactory.createVanillaDefault();
+        RefusalMessagePicker messagePicker = RefusalMessagePicker.createDefault();
+        EyeInsertionPolicy insertionPolicy = new EyeInsertionPolicy(settings, ringChecker, messagePicker);
+
+        EndSealEvents events = new EndSealEvents(insertionPolicy);
+        EndSealCommand command = new EndSealCommand(settings);
+
+        NeoForge.EVENT_BUS.addListener(events::onRightClickBlock);
+        NeoForge.EVENT_BUS.addListener(command::onRegisterCommands);
     }
 }

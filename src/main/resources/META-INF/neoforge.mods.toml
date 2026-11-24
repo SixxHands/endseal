@@ -1,16 +1,14 @@
 modLoader="javafml"
 loaderVersion="[1,)"
-license="All Rights Reserved"
+license="MIT"
 
 [[mods]]
 modId="endseal"
-version="1.0.0"
+version="${version}"
 displayName="EndSeal"
 authors="Retro"
-# Server-only: clients do not need this mod installed. IGNORE_ALL_VERSION tells
-# NeoForge not to compare or require this mod on the client during connection.
 displayTest="IGNORE_ALL_VERSION"
-description='''Silently refuses End portal activation until you choose to open it. The stronghold and portal frame still generate; the portal simply will not ignite, and players are told it is "not ready yet" so it reads as intentional design rather than a bug. Server-side only — no client install required.'''
+description='''Server-side NeoForge mod that prevents End portal activation until you choose to open it. Strongholds and portal frames still generate normally; players see a configurable action-bar message when insertion is refused.'''
 
 [[dependencies.endseal]]
 modId="neoforge"

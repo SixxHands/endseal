@@ -6,6 +6,10 @@ plugins {
 version = '1.0.0'
 group = 'com.retro.endseal'
 
+base {
+    archivesName = 'endseal'
+}
+
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(21)
 }
@@ -14,9 +18,13 @@ repositories {
     mavenCentral()
 }
 
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
 neoForge {
-    // Match this to the NeoForge version your modpack ships (1.21.1 line).
-    version = "21.1.172"
+    version = '21.1.172'
 
     runs {
         client { client() }
@@ -30,10 +38,26 @@ neoForge {
     }
 }
 
+tasks.named('test', Test) {
+    useJUnitPlatform()
+}
+
 tasks.named('processResources', ProcessResources).configure {
-    var replaceProperties = [ version: project.version ]
+    var replaceProperties = [version: project.version]
     inputs.properties replaceProperties
     filesMatching(['META-INF/neoforge.mods.toml']) {
         expand replaceProperties
     }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.named('compileJava', JavaCompile) {
+    options.compilerArgs += ['-Xlint:all', '-Xlint:-processing', '-Werror']
+}
+
+tasks.named('compileTestJava', JavaCompile) {
+    options.compilerArgs += ['-Xlint:all', '-Xlint:-processing', '-Werror']
 }
